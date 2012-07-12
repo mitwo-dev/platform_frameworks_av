@@ -88,8 +88,12 @@ status_t CameraClient::initialize(camera_module_t *module) {
             (void *)mCameraId);
 
     // Enable zoom, error, focus, and metadata messages by default
-    enableMsgType(CAMERA_MSG_ERROR | CAMERA_MSG_ZOOM | CAMERA_MSG_FOCUS |
-                  CAMERA_MSG_PREVIEW_METADATA | CAMERA_MSG_FOCUS_MOVE);
+    enableMsgType(CAMERA_MSG_ERROR | CAMERA_MSG_ZOOM | CAMERA_MSG_FOCUS
+#ifndef QCOM_HARDWARE
+                  | CAMERA_MSG_PREVIEW_METADATA 
+#endif
+                  | CAMERA_MSG_FOCUS_MOVE
+                 );
 
     LOG1("CameraClient::initialize X (pid %d, id %d)", callingPid, mCameraId);
     return OK;
@@ -250,9 +254,14 @@ void CameraClient::disconnect() {
 
     // Release the held ANativeWindow resources.
     if (mPreviewWindow != 0) {
+#ifdef QCOM_HARDWARE
+        mHardware->setPreviewWindow(0);
+#endif
         disconnectWindow(mPreviewWindow);
         mPreviewWindow = 0;
+#ifndef QCOM_HARDWARE
         mHardware->setPreviewWindow(mPreviewWindow);
+#endif
     }
     mHardware.clear();
 
@@ -291,6 +300,10 @@ status_t CameraClient::setPreviewWindow(const sp<IBinder>& binder,
             native_window_set_buffers_transform(window.get(), mOrientation);
             result = mHardware->setPreviewWindow(window);
         }
+#ifdef QCOM_HARDWARE
+    } else {
+        result = mHardware->setPreviewWindow(window);
+#endif
     }
 
     if (result == NO_ERROR) {
@@ -350,6 +363,9 @@ void CameraClient::setPreviewCallbackFlag(int callback_flag) {
 // start preview mode
 status_t CameraClient::startPreview() {
     LOG1("startPreview (pid %d)", getCallingPid());
+#ifdef QCOM_HARDWARE
+    enableMsgType(CAMERA_MSG_PREVIEW_METADATA);
+#endif
     return startCameraMode(CAMERA_PREVIEW_MODE);
 }
 
@@ -435,6 +451,9 @@ status_t CameraClient::startRecordingMode() {
 // stop preview mode
 void CameraClient::stopPreview() {
     LOG1("stopPreview (pid %d)", getCallingPid());
+#ifdef QCOM_HARDWARE
+    disableMsgType(CAMERA_MSG_PREVIEW_METADATA);
+#endif
     Mutex::Autolock lock(mLock);
     if (checkPidAndHardware() != NO_ERROR) return;
 
@@ -535,6 +554,10 @@ status_t CameraClient::takePicture(int msgType) {
                            CAMERA_MSG_RAW_IMAGE_NOTIFY |
                            CAMERA_MSG_COMPRESSED_IMAGE);
 
+
+#ifdef QCOM_HARDWARE
+    disableMsgType(CAMERA_MSG_PREVIEW_METADATA);
+#endif
     enableMsgType(picMsgType);
 
     return mHardware->takePicture();

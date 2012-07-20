@@ -95,6 +95,7 @@ LOCAL_SRC_FILES:=                         \
         ExtendedExtractor.cpp             \
         ExtendedUtils.cpp                 \
         ExtendedStats.cpp                 \
+        APE.cpp                           \
 
 LOCAL_C_INCLUDES:= \
         $(TOP)/frameworks/av/include/media/ \

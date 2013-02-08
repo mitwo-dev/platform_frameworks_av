@@ -145,6 +145,10 @@ struct ExtendedUtils {
             const uint8_t *ptr, const sp<MetaData> &meta);
 
     static int32_t checkIsInterlace(sp<MetaData> &meta);
+
+    //helper function for MPEG4 Extractor to check for AC3/EAC3 contents
+    static void helper_Mpeg4ExtractorCheckAC3EAC3(MediaBuffer *buffer, sp<MetaData> &format,
+                                                   size_t size);
 };
 
 }

@@ -1712,9 +1712,13 @@ audio_io_handle_t AudioFlinger::openOutput(audio_module_handle_t module,
             ALOGV("openOutput() created mixer output: ID %d thread %p", id, thread);
         }
 #ifdef QCOM_HARDWARE
-        if (thread != NULL)
+        if (thread != NULL) {
 #endif
             mPlaybackThreads.add(id, thread);
+            thread->mOutputFlags = flags;
+#ifdef QCOM_HARDWARE
+        }
+#endif
 
         if (pSamplingRate != NULL) *pSamplingRate = config.sample_rate;
         if (pFormat != NULL) *pFormat = config.format;
@@ -1917,7 +1921,7 @@ audio_io_handle_t AudioFlinger::openInput(audio_module_handle_t module,
     if (status == BAD_VALUE &&
         reqFormat == config.format && config.format == AUDIO_FORMAT_PCM_16_BIT &&
         (config.sample_rate <= 2 * reqSamplingRate) &&
-        (popcount(config.channel_mask) <= FCC_2) && (popcount(reqChannels) <= FCC_2)) {
+        (getInputChannelCount(config.channel_mask) <= FCC_2) && (getInputChannelCount(reqChannels) <= FCC_2)) {
         ALOGV("openInput() reopening with proposed sampling rate and channel mask");
         inStream = NULL;
         status = inHwHal->open_input_stream(inHwHal, id, *pDevices, &config, &inStream);
@@ -2045,7 +2049,14 @@ status_t AudioFlinger::setStreamOutput(audio_stream_type_t stream, audio_io_hand
 
     for (size_t i = 0; i < mPlaybackThreads.size(); i++) {
         PlaybackThread *thread = mPlaybackThreads.valueAt(i).get();
+#ifdef QCOM_HARDWARE
+        // Do not invalidate voip stream which uses directoutput thread
+        if(!(thread->type() == ThreadBase::DIRECT && (thread->mOutputFlags & AUDIO_OUTPUT_FLAG_VOIP_RX))) {
+            thread->invalidateTracks(stream);
+        }
+#else
         thread->invalidateTracks(stream);
+#endif
     }
 
     return NO_ERROR;

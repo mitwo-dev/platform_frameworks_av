@@ -677,6 +677,8 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
 
             ExtendedCodec::configureVideoCodec(
                     meta, mOMX, mFlags, mNode, mComponentName);
+            ExtendedCodec::enableSmoothStreaming(
+                    mOMX, mNode, &mInSmoothStreamingMode, mComponentName);
         }
     }
 
@@ -1481,7 +1483,8 @@ OMXCodec::OMXCodec(
               (!strncmp(componentName, "OMX.google.", 11)
               || !strcmp(componentName, "OMX.Nvidia.mpeg2v.decode"))
                         ? NULL : nativeWindow),
-      mNumBFrames(0) {
+      mNumBFrames(0),
+      mInSmoothStreamingMode(false) {
     mPortStatus[kPortIndexInput] = ENABLED;
     mPortStatus[kPortIndexOutput] = ENABLED;
 
@@ -4753,7 +4756,12 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 }
 
                 if (mNativeWindow != NULL) {
-                     initNativeWindowCrop();
+                    if (mInSmoothStreamingMode) {
+                        QCUtils::updateNativeWindowBufferGeometry(
+                                mNativeWindow.get(), video_def->nFrameWidth,
+                                video_def->nFrameHeight, video_def->eColorFormat);
+                    }
+                    initNativeWindowCrop();
                 }
             } else {
                 QCUtils::HFR::copyHFRParams(inputFormat, mOutputFormat);

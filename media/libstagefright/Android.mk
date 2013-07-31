@@ -84,7 +84,7 @@ endif
 
 ifeq ($(TARGET_QCOM_MEDIA_VARIANT),caf)
 LOCAL_C_INCLUDES += \
-        $(TOP)/hardware/qcom/media-caf/mm-core/inc
+        $(TOP)/hardware/qcom/media/mm-core/inc
 else
 LOCAL_C_INCLUDES += \
         $(TOP)/hardware/qcom/media/mm-core/inc

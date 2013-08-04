@@ -41,7 +41,7 @@
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/timedtext/TimedTextDriver.h>
 #include <media/stagefright/AudioPlayer.h>
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
 #include <media/stagefright/LPAPlayer.h>
 #ifdef USE_TUNNEL_MODE
 #include <media/stagefright/TunnelPlayer.h>
@@ -79,7 +79,7 @@ static const int64_t kInitFrameDurationUs = 16000;
 static const int64_t kScheduleLagGapUs = 1000;
 static const int64_t kDefaultEventDelayUs = 10000;
 
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
 int AwesomePlayer::mTunnelAliveAP = 0;
 #endif
 
@@ -233,7 +233,7 @@ AwesomePlayer::AwesomePlayer()
     mAudioStatusEventPending = false;
 
     reset();
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
     mIsTunnelAudio = false;
 #endif
 }
@@ -245,7 +245,7 @@ AwesomePlayer::~AwesomePlayer() {
 
     reset();
 
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
     // Disable Tunnel Mode Audio
     if (mIsTunnelAudio) {
         if (mTunnelAliveAP > 0) {
@@ -964,7 +964,7 @@ status_t AwesomePlayer::play() {
 }
 
 status_t AwesomePlayer::play_l() {
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
     int tunnelObjectsAlive = 0;
 #endif
     modifyFlags(SEEK_PREVIEW, CLEAR);
@@ -994,7 +994,7 @@ status_t AwesomePlayer::play_l() {
     if (mAudioSource != NULL) {
         if (mAudioPlayer == NULL) {
             if (mAudioSink != NULL) {
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
                 sp<MetaData> format = mAudioTrack->getFormat();
                 const char *mime;
                 bool success = format->findCString(kKeyMIMEType, &mime);
@@ -1012,7 +1012,7 @@ status_t AwesomePlayer::play_l() {
                 } else {
                     allowDeepBuffering = false;
                 }
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
 #ifdef USE_TUNNEL_MODE
                 // Create tunnel player if tunnel mode is enabled
                 ALOGW("Trying to create tunnel player mIsTunnelAudio %d, \
@@ -1092,7 +1092,7 @@ status_t AwesomePlayer::play_l() {
                     ALOGV("AudioPlayer created, Non-LPA mode mime %s duration %lld\n", mime, mDurationUs);
 #endif
                     mAudioPlayer = new AudioPlayer(mAudioSink, allowDeepBuffering, this);
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
                 }
 #endif
                 mAudioPlayer->setSource(mAudioSource);
@@ -1113,7 +1113,7 @@ status_t AwesomePlayer::play_l() {
             // We don't want to post an error notification at this point,
             // the error returned from MediaPlayer::start() will suffice.
             bool sendErrorNotification = false;
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
             if(mIsTunnelAudio) {
                 // For tunnel Audio error has to be posted to the client
                 sendErrorNotification = true;
@@ -1610,7 +1610,7 @@ status_t AwesomePlayer::initAudioDecoder() {
 
     const char *mime;
     CHECK(meta->findCString(kKeyMIMEType, &mime));
-#ifdef QCOM_HARDWARE
+#ifdef QCOM_ENHANCED_AUDIO
     int32_t nchannels = 0;
     int32_t isADTS = 0;
     meta->findInt32( kKeyChannelCount, &nchannels );

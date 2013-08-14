@@ -59,6 +59,9 @@ const char CameraParameters::KEY_GPS_PROCESSING_METHOD[] = "gps-processing-metho
 const char CameraParameters::KEY_WHITE_BALANCE[] = "whitebalance";
 const char CameraParameters::KEY_SUPPORTED_WHITE_BALANCE[] = "whitebalance-values";
 const char CameraParameters::KEY_EFFECT[] = "effect";
+const char CameraParameters::KEY_ORIENTATION[] = "orientation";
+const char CameraParameters::KEY_WATERMARK[] = "watermark";
+const char CameraParameters::KEY_MIRROR[] = "mirror";
 const char CameraParameters::KEY_SUPPORTED_EFFECTS[] = "effect-values";
 #ifdef QCOM_HARDWARE
 const char CameraParameters::KEY_TOUCH_AF_AEC[] = "touch-af-aec";

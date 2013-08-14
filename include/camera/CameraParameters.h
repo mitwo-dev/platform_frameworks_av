@@ -264,6 +264,10 @@ public:
     // Current color effect setting.
     // Example value: "none" or EFFECT_XXX constants. Read/write.
     static const char KEY_EFFECT[];
+    // current orientation value
+    static const char KEY_ORIENTATION[];
+    static const char KEY_WATERMARK[];
+    static const char KEY_MIRROR[];
     // Supported color effect settings.
     // Example value: "none,mono,sepia". Read only.
     static const char KEY_SUPPORTED_EFFECTS[];

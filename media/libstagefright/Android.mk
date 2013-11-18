@@ -1,15 +1,6 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-ifeq ($(BOARD_USES_ALSA_AUDIO),true)
-   ifeq ($(USE_TUNNEL_MODE),true)
-        LOCAL_CFLAGS += -DUSE_TUNNEL_MODE
-   endif
-   ifeq ($(NO_TUNNEL_MODE_FOR_MULTICHANNEL),true)
-        LOCAL_CFLAGS += -DNO_TUNNEL_MODE_FOR_MULTICHANNEL
-   endif
-endif
-
 include frameworks/av/media/libstagefright/codecs/common/Config.mk
 
 LOCAL_SRC_FILES:=                         \
@@ -30,7 +21,6 @@ LOCAL_SRC_FILES:=                         \
         FLACExtractor.cpp                 \
         HTTPBase.cpp                      \
         JPEGSource.cpp                    \
-        LPAPlayerALSA.cpp                 \
         MP3Extractor.cpp                  \
         MPEG2TSWriter.cpp                 \
         MPEG4Extractor.cpp                \
@@ -60,7 +50,6 @@ LOCAL_SRC_FILES:=                         \
         ThrottledSource.cpp               \
         TimeSource.cpp                    \
         TimedEventQueue.cpp               \
-        TunnelPlayer.cpp                  \
         Utils.cpp                         \
         VBRISeeker.cpp                    \
         WAVExtractor.cpp                  \
@@ -81,6 +70,24 @@ LOCAL_C_INCLUDES:= \
         $(TOP)/external/flac/include \
         $(TOP)/external/tremolo \
         $(TOP)/external/openssl/include \
+	$(TOP)/frameworks/native/include/media/openmax \
+	$(TOP)/hardware/qcom/media/mm-core/inc
+
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+    ifeq ($(BOARD_USES_ALSA_AUDIO),true)
+        LOCAL_SRC_FILES += LPAPlayerALSA.cpp
+    endif
+    ifeq ($(USE_TUNNEL_MODE),true)
+        LOCAL_SRC_FILES += TunnelPlayer.cpp
+        LOCAL_CFLAGS += -DUSE_TUNNEL_MODE
+    endif
+    ifeq ($(TUNNEL_MODE_SUPPORTS_AMRWB),true)
+        LOCAL_CFLAGS += -DTUNNEL_MODE_SUPPORTS_AMRWB
+    endif
+    ifeq ($(NO_TUNNEL_MODE_FOR_MULTICHANNEL),true)
+        LOCAL_CFLAGS += -DNO_TUNNEL_MODE_FOR_MULTICHANNEL
+    endif
+endif
 
 LOCAL_SHARED_LIBRARIES := \
         libbinder \

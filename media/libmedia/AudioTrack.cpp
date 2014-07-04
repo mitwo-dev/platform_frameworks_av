@@ -725,6 +725,7 @@ uint32_t AudioTrack::getSampleRate() const
     AutoMutex lock(mLock);
     if(mAudioDirectOutput != -1) {
         return mAudioFlinger->sampleRate(mAudioDirectOutput);
+    }
 
     // sample rate can be updated during playback by the offloaded decoder so we need to
     // query the HAL and update if needed.
